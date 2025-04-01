@@ -1,45 +1,187 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>后台登录</title>
- <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>后台认证</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
- <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-  <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">后台登录</h1>
-  <form>
-   <!-- 用户名输入 -->
-   <div class="mb-4">
-    <label for="username" class="block text-sm font-medium text-gray-700">用户名</label>
-    <input type="text" id="username" name="username" placeholder="请输入用户名"
-     class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-     required />
-   </div>
+<div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
 
-   <!-- 密码输入 -->
-   <div class="mb-6">
-    <label for="password" class="block text-sm font-medium text-gray-700">密码</label>
-    <input type="password" id="password" name="password" placeholder="请输入密码"
-     class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-     required />
-   </div>
 
-   <!-- 登录按钮 -->
-   <button type="submit"
-    class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-    登录
-   </button>
+  <!-- 登录表单 -->
+  <form id="loginForm">
+    <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">后台登录</h1>
+    <!-- 邮箱输入 -->
+    <div class="mb-4">
+      <label for="login_email" class="block text-sm font-medium text-gray-700">邮箱</label>
+      <input type="email" id="login_email" name="email" placeholder="请输入邮箱"
+             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required />
+    </div>
+    <!-- 密码输入 -->
+    <div class="mb-6">
+      <label for="login_password" class="block text-sm font-medium text-gray-700">密码</label>
+      <input type="password" id="login_password" name="password" placeholder="请输入密码"
+             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required />
+    </div>
+    <!-- 登录按钮 -->
+    <button type="submit"
+            class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+      登录
+    </button>
 
-   <!-- 忘记密码链接 -->
-   <div class="mt-4 text-center">
-    <a href="#" class="text-sm text-blue-600 hover:text-blue-500">忘记密码？</a>
-   </div>
+
+    <!-- 切换模式按钮 -->
+    <div class="flex justify-end mb-4 my-4">
+      <button id="toggleBtn" class="text-blue-600 hover:underline">切换到注册</button>
+    </div>
   </form>
- </div>
-</body>
 
+  <!-- 注册表单 -->
+  <form id="registerForm" class="hidden">
+    <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">用户注册</h1>
+    <!-- 邮箱输入 -->
+    <div class="mb-4">
+      <label for="reg_email" class="block text-sm font-medium text-gray-700">邮箱</label>
+      <input type="email" id="reg_email" name="email" placeholder="请输入邮箱"
+             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required />
+    </div>
+    <!-- 验证码输入及发送按钮 -->
+    <div class="mb-4 flex items-end">
+      <div class="flex-grow">
+        <label for="reg_code" class="block text-sm font-medium text-gray-700">验证码</label>
+        <input type="text" id="reg_code" name="code" placeholder="请输入验证码"
+               class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required />
+      </div>
+      <div class="ml-2 mt-6">
+        <button type="button" id="sendCodeBtn"
+                class="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          发送验证码
+        </button>
+      </div>
+    </div>
+    <!-- 密码输入 -->
+    <div class="mb-4">
+      <label for="reg_password" class="block text-sm font-medium text-gray-700">密码</label>
+      <input type="password" id="reg_password" name="password" placeholder="请输入密码"
+             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required />
+    </div>
+    <!-- 确认密码输入 -->
+    <div class="mb-6">
+      <label for="reg_confirm_password" class="block text-sm font-medium text-gray-700">确认密码</label>
+      <input type="password" id="reg_confirm_password" name="confirm_password" placeholder="请再次输入密码"
+             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required />
+    </div>
+    <!-- 注册按钮 -->
+    <button type="submit"
+            class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+      注册
+    </button>
+  </form>
+</div>
+
+<script>
+  // 切换登录/注册页面
+  const toggleBtn = document.getElementById("toggleBtn");
+  const loginForm = document.getElementById("loginForm");
+  const registerForm = document.getElementById("registerForm");
+
+  toggleBtn.addEventListener("click", () => {
+    if (loginForm.classList.contains("hidden")) {
+      // 切换到登录
+      loginForm.classList.remove("hidden");
+      registerForm.classList.add("hidden");
+      toggleBtn.textContent = "切换到注册";
+    } else {
+      // 切换到注册
+      loginForm.classList.add("hidden");
+      registerForm.classList.remove("hidden");
+      toggleBtn.textContent = "切换到登录";
+    }
+  });
+
+  // 登录表单提交
+  loginForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const email = document.getElementById("login_email").value;
+    const password = document.getElementById("login_password").value;
+    fetch("/login", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ email, password })
+    })
+            .then(response => response.json())
+            .then(data => {
+              if (data.code === 200) {
+                alert("登录成功！");
+                // 保存 token，
+                localStorage.setItem("token", data.data.token);
+                // 跳转到受保护页面，例如 index.html
+                window.location.href = "/index.html";
+              } else {
+                alert("登录失败：" + data.message);
+              }
+            })
+            .catch(err => {
+              console.error(err);
+              alert("登录请求失败！");
+            });
+  });
+
+  // 注册表单提交
+  registerForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const email = document.getElementById("reg_email").value;
+    const code = document.getElementById("reg_code").value;
+    const password = document.getElementById("reg_password").value;
+    const confirm_password = document.getElementById("reg_confirm_password").value;
+    fetch("/register", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ email, code, password, confirm_password })
+    })
+            .then(response => response.json())
+            .then(data => {
+              if (data.code === 200) {
+                alert("注册成功，请登录！");
+                // 切换回登录页面
+                toggleBtn.click();
+              } else {
+                alert(data.message);
+              }
+            })
+            .catch(err => {
+              console.error(err);
+              alert("注册请求失败！");
+            });
+  });
+
+  // 发送验证码按钮点击事件
+  document.getElementById("sendCodeBtn").addEventListener("click", () => {
+    const email = document.getElementById("reg_email").value;
+    if (!email) {
+      alert("请先填写邮箱");
+      return;
+    }
+    fetch("/send_code", {
+      method: "POST",
+      headers: {"Content-Type": "application/x-www-form-urlencoded"},
+      body: "email=" + encodeURIComponent(email)
+    })
+            .then(response => response.json())
+            .then(data => {
+              if (data.code === 200) {
+                alert(data.message);
+              } else {
+                alert("发送验证码失败：" + data.message);
+              }
+            })
+            .catch(err => {
+              console.error(err);
+              alert("验证码发送请求失败！");
+            });
+  });
+</script>
+</body>
 </html>
