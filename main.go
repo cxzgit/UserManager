@@ -38,6 +38,11 @@ func main() {
 	loginService := service.NewLoginService(loginMapper)
 	loginController := controller.NewLoginController(loginService)
 
+	//首页
+	homeMapper := mapper.NewHomeMapper(db.DB)
+	homeService := service.NewHomeService(homeMapper)
+	homeController := controller.NewHomeController(homeService)
+
 	// 使用 Gorilla mux 路由
 	router := mux.NewRouter()
 	//注册时发送邮箱验证码
@@ -69,7 +74,14 @@ func main() {
 	protected := router.PathPrefix("/").Subrouter()
 	// JWT 拦截器，中间件会解析 JWT，并把用户信息写入 Context
 	protected.Use(middleware.AuthMiddleware)
-	protected.HandleFunc("/logout", loginController.LogoutHandler).Methods(http.MethodPost)
+	//进入首页
+	protected.HandleFunc("/index", homeController.HomePage).Methods(http.MethodGet)
+	//仪表盘数据
+	protected.HandleFunc("/dashboardStats", homeController.DashboardStats).Methods(http.MethodGet)
+	//访问趋势
+	protected.HandleFunc("/accessTrend", homeController.GetAccessTrend).Methods(http.MethodGet)
+	//登出
+	protected.HandleFunc("/logout", homeController.LogoutHandler).Methods(http.MethodGet)
 	fmt.Println("服务器启动，监听端口 :8080")
 	log.Fatal(http.ListenAndServe("localhost:8080", router))
 }

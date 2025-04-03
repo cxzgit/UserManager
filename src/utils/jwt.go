@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"UserManager/src/models"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"time"
@@ -11,14 +12,16 @@ var jwtSecret = []byte("cxzzs")
 
 type Claims struct {
 	UserID int `json:"user_id"`
+	Role   int `json:"role"`
 	//预定义声明的结构体，里面的字段用于描述Token的基本信息
 	jwt.RegisteredClaims
 }
 
 // 生成JWT
-func GenerateToken(userID int) (string, error) {
+func GenerateToken(user *models.User) (string, error) {
 	claims := Claims{
-		UserID: userID,
+		UserID: user.ID,
+		Role:   user.Role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			//过期时间
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),

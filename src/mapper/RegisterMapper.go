@@ -19,8 +19,8 @@ func NewRegisterMapper(db *sql.DB) *RegisterMapper {
 func (rm *RegisterMapper) GetUserByEmail(email string) (*models.User, error) {
 	user := &models.User{}
 	var createdAt string
-	err := rm.DB.QueryRow("SELECT id, email, password_hash, created_at FROM users WHERE email = ?", email).
-		Scan(&user.ID, &user.Email, &user.PasswordHash, &createdAt)
+	err := rm.DB.QueryRow("SELECT id, email, password_hash,role,nickname,avatar_url,created_at FROM users WHERE email = ?", email).
+		Scan(&user.ID, &user.Email, &user.PasswordHash, &user.Role, &user.Nickname, &user.AvatarUrl, &createdAt)
 	if err != nil {
 		return nil, err
 	}

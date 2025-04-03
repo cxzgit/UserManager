@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"html/template"
 	"net/http"
+	"time"
 )
 
 type LoginController struct {
@@ -50,21 +51,14 @@ func (lc *LoginController) LoginHandler(w http.ResponseWriter, r *http.Request) 
 		json.NewEncoder(w).Encode(utils.ErrorResult[string](401, err.Error()))
 		return
 	}
+	// 设置 Cookie
+	http.SetCookie(w, &http.Cookie{
+		Name:     "jwt_token",
+		Value:    token,
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   false,                          // 生产环境应设为 true
+		Expires:  time.Now().Add(24 * time.Hour), // 24 小时后失效，不自动续期
+	})
 	json.NewEncoder(w).Encode(utils.SuccessResult(map[string]string{"token": token}))
-}
-func (lc *LoginController) LogoutHandler(w http.ResponseWriter, r *http.Request) {
-	//由中间件解析 JWT 后写入 Context
-	userID, ok := r.Context().Value("userID").(int)
-	if !ok {
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(utils.ErrorResult[string](401, "无效的用户身份"))
-		return
-	}
-	err := lc.Service.LogoutUser(userID)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(utils.ErrorResult[string](500, "登出失败"))
-		return
-	}
-	json.NewEncoder(w).Encode(utils.SuccessResult("登出成功"))
 }

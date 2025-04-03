@@ -12,7 +12,7 @@ var DB *sql.DB
 func InitDB() {
 	var err error
 	// DSN 示例：用户名:密码@tcp(127.0.0.1:3306)/数据库名
-	DB, err = sql.Open("mysql", "root:cxz@tcp(127.0.0.1:3306)/goweb")
+	DB, err = sql.Open("mysql", "root:cxz@tcp(127.0.0.1:3306)/goweb?parseTime=true&loc=Asia%2FShanghai")
 	if err != nil {
 		log.Fatal("数据库连接失败:", err)
 	}

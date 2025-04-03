@@ -109,16 +109,15 @@
     fetch("/login", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email, password }),
+      credentials: "include", //  允许携带 Cookie
     })
             .then(response => response.json())
             .then(data => {
               if (data.code === 200) {
                 alert("登录成功！");
-                // 保存 token，
-                localStorage.setItem("token", data.data.token);
-                // 跳转到受保护页面，例如 index.html
-                window.location.href = "/index.html";
+                // 跳转到index
+                 window.location.href = "/index";
               } else {
                 alert("登录失败：" + data.message);
               }

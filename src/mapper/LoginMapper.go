@@ -19,12 +19,12 @@ func NewLoginMapper(db *sql.DB) *LoginMapper {
 func (lm *LoginMapper) GetUserByEmail(email string) (*models.User, error) {
 	user := &models.User{}
 	var createdAt string
-	err := lm.DB.QueryRow("SELECT id, email, password_hash, created_at FROM users WHERE email = ?", email).
-		Scan(&user.ID, &user.Email, &user.PasswordHash, &createdAt)
+	err := lm.DB.QueryRow("SELECT id, email, password_hash,role,nickname,avatar_url, created_at FROM users WHERE email = ?", email).
+		Scan(&user.ID, &user.Email, &user.PasswordHash, &user.Role, &user.Nickname, &user.AvatarUrl, &createdAt)
 	if err != nil {
 		return nil, err
 	}
-	user.CreatedAt, err = time.Parse("2006-01-02 15:04:05", createdAt)
+	user.CreatedAt, err = time.Parse("2006-01-02T15:04:05Z07:00", createdAt)
 	if err != nil {
 		fmt.Errorf("时间解析错误")
 		return nil, err
