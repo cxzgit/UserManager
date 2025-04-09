@@ -85,8 +85,10 @@ func main() {
 	protected.HandleFunc("/dashboardStats", homeController.DashboardStats).Methods(http.MethodGet)
 	//访问趋势
 	protected.HandleFunc("/accessTrend", homeController.GetAccessTrend).Methods(http.MethodGet)
-	//登出
-	protected.HandleFunc("/logout", homeController.LogoutHandler).Methods(http.MethodGet)
+	//首页头像
+	protected.HandleFunc("/index/profile", homeController.ProfileHandler).Methods(http.MethodGet)
+	//首页登出
+	protected.HandleFunc("/index/logout", homeController.LogoutHandler).Methods(http.MethodGet)
 
 	//进入用户管理页面
 	protected.HandleFunc("/user", userController.UserPage).Methods(http.MethodGet)
@@ -102,6 +104,12 @@ func main() {
 	protected.HandleFunc("/getUser", userController.GetUserByID).Methods(http.MethodGet)
 	//根据id删除用户
 	protected.HandleFunc("/deleteUser", userController.DeleteUser).Methods(http.MethodDelete)
+
+	//用户页面登出
+	protected.HandleFunc("/user/logout", userController.LogoutHandler).Methods(http.MethodGet)
+	//用户页面头像
+	protected.HandleFunc("/user/profile", userController.ProfileHandler).Methods(http.MethodGet)
+
 	fmt.Println("服务器启动，监听端口 :8080")
 	log.Fatal(http.ListenAndServe("localhost:8080", router))
 }

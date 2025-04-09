@@ -6,7 +6,7 @@
  <meta name="viewport" content="width=device-width, initial-scale=1.0">
  <title>后台管理系统</title>
  <script src="https://cdn.tailwindcss.com"></script>
- <!-- <script src="https://unpkg.com/feather-icons"></script>-->
+ <script src="https://unpkg.com/feather-icons"></script>
  <style>
   /* 自定义滚动条 */
   ::-webkit-scrollbar {
@@ -57,9 +57,10 @@
     <i data-feather="bell"></i>
    </button>
    <div class="flex items-center gap-2">
-    <img
-            src="https://cxz123456.oss-cn-beijing.aliyuncs.com/Joker-2311822-wallhere.com.jpg"
-            class="w-8 h-8 rounded-full">
+    <img id="userAvatar"
+         src="https://cxz123456.oss-cn-beijing.aliyuncs.com/Joker-2311822-wallhere.com.jpg"
+    class="w-8 h-8 rounded-full"
+    alt="用户头像">
 
     <button onclick="logout()" class="text-red-600 hover:text-red-700 flex items-center gap-1">
      <i data-feather="log-out" class="w-5 h-5"></i>
@@ -142,9 +143,11 @@
    </div>
    <canvas id="trendChart" class="h-80 bg-gray-50 rounded-lg"></canvas>
   </div>
+ </div>
 </main>
 
 <script>
+ feather.replace();
  // 全局功能
  function setPageTitle(title) {
   document.getElementById('pageTitle').textContent = title;
@@ -154,12 +157,47 @@
 
  setPageTitle('数据概览');
 
- function logout() {
+ async function logout() {
   if (confirm('确定要退出系统吗？')) {
-   localStorage.clear();
-   window.location.href = '/login';
+   const response = await fetch('/index/logout');
+   const result = await response.json();
+   console.log("哈哈",result.code)
+   if (result.code === 200) {
+    //清除 localStorage/sessionStorage 中可能缓存的用户信息
+    localStorage.clear();
+    sessionStorage.clear();
+    window.location.href = '/login';
+   }
   }
  }
+
+
+ //获取头像
+ document.addEventListener('DOMContentLoaded', function() {
+  // 发送 GET 请求到 /profile 接口获取用户信息
+  fetch('/index/profile', {
+   credentials: 'include' // 带上 cookie
+  })
+          .then(function(response) {
+           if (!response.ok) {
+            throw new Error("网络错误或未登录");
+           }
+           return response.json();
+          })
+          .then(function(data) {
+           // 假设返回的数据格式为 { avatar: "https://...." }
+           console.log("二u有",data.data.avatar)
+           console.log("是递归",data.avatar)
+           if (data.data.avatar) {
+            document.getElementById('userAvatar').src = data.data.avatar;
+           } else {
+            console.warn("未返回头像信息");
+           }
+          })
+          .catch(function(error) {
+           console.error("获取用户信息失败:", error);
+          });
+ });
 
 
 

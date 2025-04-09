@@ -51,7 +51,10 @@
     <i data-feather="bell"></i>
    </button>
    <div class="flex items-center gap-2">
-    <img src="https://cxz123456.oss-cn-beijing.aliyuncs.com/Joker-2311822-wallhere.com.jpg" class="w-8 h-8 rounded-full">
+    <img id="userAvatar"
+         src="https://cxz123456.oss-cn-beijing.aliyuncs.com/Joker-2311822-wallhere.com.jpg"
+         class="w-8 h-8 rounded-full"
+         alt="用户头像">
     <button onclick="logout()" class="text-red-600 hover:text-red-700 flex items-center gap-1">
      <i data-feather="log-out" class="w-5 h-5"></i>
      <span class="hidden sm:inline">退出系统</span>
@@ -86,8 +89,8 @@
     </select>
    </div>
    <button id="addUserBtn" onclick="openUserModal()" class="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-    <i data-feather="plus"></i>
-    <span>新建用户</span>
+    <i data-feather="plus" style="display: inline-block"></i>
+    <span style="display: inline-block">新建用户</span>
    </button>
   </div>
 
@@ -172,6 +175,32 @@
  function checkPermission() {
   document.getElementById('addUserBtn').style.display = currentUserRole === 1 ? 'block' : 'none';
  }
+
+ //获取头像
+ document.addEventListener('DOMContentLoaded', function() {
+  // 发送 GET 请求到 /profile 接口获取用户信息
+  fetch('/user/profile', {
+   credentials: 'include' // 带上 cookie
+  })
+          .then(function(response) {
+           if (!response.ok) {
+            throw new Error("网络错误或未登录");
+           }
+           return response.json();
+          })
+          .then(function(data) {
+           // 假设返回的数据格式为 { avatar: "https://...." }
+           if (data.data.avatar) {
+            document.getElementById('userAvatar').src = data.data.avatar;
+           } else {
+            console.warn("未返回头像信息");
+           }
+          })
+          .catch(function(error) {
+           console.error("获取用户信息失败:", error);
+          });
+ });
+
 
  // 头像预览函数
  function previewAvatar(input) {
@@ -361,8 +390,18 @@
           .then(r => { if (r.code === 200) loadUsers(currentPage); });
  }
 
- function logout() {
-  if (confirm('退出系统?')) location.href = '/login';
+ async function logout() {
+  if (confirm('确定要退出系统吗？')) {
+   const response = await fetch('/user/logout');
+   const result = await response.json();
+   console.log("哈哈",result.code)
+   if (result.code === 200) {
+    //清除 localStorage/sessionStorage 中可能缓存的用户信息
+    localStorage.clear();
+    sessionStorage.clear();
+    window.location.href = '/login';
+   }
+  }
  }
 
  document.addEventListener('DOMContentLoaded', () => {

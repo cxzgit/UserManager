@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
+	"regexp"
 )
 
 // VerificationInfo 保存验证码及其过期时间
@@ -39,6 +40,9 @@ func (rs *RegisterService) SendVerificationCode(email string) error {
 
 // 用户注册
 func (rs *RegisterService) RegisterUser(email, inputCode, password, passwordConfirm string) error {
+	if !isValidPassword(password) {
+		return fmt.Errorf("密码必须是8-12位字母和数字组合")
+	}
 	if password != passwordConfirm {
 		return fmt.Errorf("两次密码输入不一致")
 	}
@@ -66,4 +70,29 @@ func (rs *RegisterService) RegisterUser(email, inputCode, password, passwordConf
 	}
 
 	return nil
+}
+
+// isValidPassword 校验密码是否满足8-12位字母和数字组合
+func isValidPassword(password string) bool {
+	// 1. 检查长度是否为8-12位
+	if len(password) < 8 || len(password) > 12 {
+		return false
+	}
+	// 2. 检查是否只包含字母和数字
+	validChars, err := regexp.MatchString(`^[0-9A-Za-z]+$`, password)
+	if err != nil || !validChars {
+		return false
+	}
+	// 3. 检查是否至少包含一个字母
+	hasLetter, err := regexp.MatchString(`[A-Za-z]`, password)
+	if err != nil || !hasLetter {
+		return false
+	}
+	// 4. 检查是否至少包含一个数字
+	hasDigit, err := regexp.MatchString(`\d`, password)
+	if err != nil || !hasDigit {
+		return false
+	}
+
+	return true
 }

@@ -9,45 +9,36 @@
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
 <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
 
-
   <!-- 登录表单 -->
   <form id="loginForm">
     <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">后台登录</h1>
-    <!-- 邮箱输入 -->
     <div class="mb-4">
       <label for="login_email" class="block text-sm font-medium text-gray-700">邮箱</label>
       <input type="email" id="login_email" name="email" placeholder="请输入邮箱"
              class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required />
     </div>
-    <!-- 密码输入 -->
     <div class="mb-6">
       <label for="login_password" class="block text-sm font-medium text-gray-700">密码</label>
       <input type="password" id="login_password" name="password" placeholder="请输入密码"
              class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required />
     </div>
-    <!-- 登录按钮 -->
     <button type="submit"
             class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
       登录
     </button>
-
-
-    <!-- 切换模式按钮 -->
     <div class="flex justify-end mb-4 my-4">
-      <button id="toggleBtn" class="text-blue-600 hover:underline">切换到注册</button>
+      <button id="toggleBtn" type="button" class="text-blue-600 hover:underline">切换到注册</button>
     </div>
   </form>
 
   <!-- 注册表单 -->
   <form id="registerForm" class="hidden">
     <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">用户注册</h1>
-    <!-- 邮箱输入 -->
     <div class="mb-4">
       <label for="reg_email" class="block text-sm font-medium text-gray-700">邮箱</label>
       <input type="email" id="reg_email" name="email" placeholder="请输入邮箱"
              class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required />
     </div>
-    <!-- 验证码输入及发送按钮 -->
     <div class="mb-4 flex items-end">
       <div class="flex-grow">
         <label for="reg_code" class="block text-sm font-medium text-gray-700">验证码</label>
@@ -61,47 +52,47 @@
         </button>
       </div>
     </div>
-    <!-- 密码输入 -->
     <div class="mb-4">
       <label for="reg_password" class="block text-sm font-medium text-gray-700">密码</label>
       <input type="password" id="reg_password" name="password" placeholder="请输入密码"
              class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required />
     </div>
-    <!-- 确认密码输入 -->
     <div class="mb-6">
       <label for="reg_confirm_password" class="block text-sm font-medium text-gray-700">确认密码</label>
       <input type="password" id="reg_confirm_password" name="confirm_password" placeholder="请再次输入密码"
              class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required />
     </div>
-    <!-- 注册按钮 -->
     <button type="submit"
             class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
       注册
     </button>
+    <div class="flex justify-end mt-4">
+      <button type="button" id="toggleBackBtn" class="text-blue-600 hover:underline">切换到登录</button>
+    </div>
   </form>
 </div>
 
 <script>
-  // 切换登录/注册页面
   const toggleBtn = document.getElementById("toggleBtn");
   const loginForm = document.getElementById("loginForm");
   const registerForm = document.getElementById("registerForm");
+  const toggleBackBtn = document.getElementById("toggleBackBtn");
 
-  toggleBtn.addEventListener("click", () => {
-    if (loginForm.classList.contains("hidden")) {
-      // 切换到登录
-      loginForm.classList.remove("hidden");
-      registerForm.classList.add("hidden");
-      toggleBtn.textContent = "切换到注册";
-    } else {
-      // 切换到注册
-      loginForm.classList.add("hidden");
-      registerForm.classList.remove("hidden");
-      toggleBtn.textContent = "切换到登录";
-    }
-  });
+  // 封装切换函数
+  function switchToRegisterForm() {
+    loginForm.classList.add("hidden");
+    registerForm.classList.remove("hidden");
+  }
 
-  // 登录表单提交
+  function switchToLoginForm() {
+    registerForm.classList.add("hidden");
+    loginForm.classList.remove("hidden");
+  }
+
+  toggleBtn.addEventListener("click", switchToRegisterForm);
+  toggleBackBtn.addEventListener("click", switchToLoginForm);
+
+  // 登录
   loginForm.addEventListener("submit", (e) => {
     e.preventDefault();
     const email = document.getElementById("login_email").value;
@@ -110,14 +101,13 @@
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({ email, password }),
-      credentials: "include", //  允许携带 Cookie
+      credentials: "include"
     })
             .then(response => response.json())
             .then(data => {
               if (data.code === 200) {
                 alert("登录成功！");
-                // 跳转到index
-                 window.location.href = "/index";
+                window.location.href = "/index";
               } else {
                 alert("登录失败：" + data.message);
               }
@@ -128,13 +118,24 @@
             });
   });
 
-  // 注册表单提交
+  // 注册
   registerForm.addEventListener("submit", (e) => {
     e.preventDefault();
     const email = document.getElementById("reg_email").value;
     const code = document.getElementById("reg_code").value;
     const password = document.getElementById("reg_password").value;
     const confirm_password = document.getElementById("reg_confirm_password").value;
+
+    const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,12}$/;
+    if (!passwordPattern.test(password)) {
+      alert("密码必须是8-12位字母和数字组合！");
+      return;
+    }
+    if (password !== confirm_password) {
+      alert("密码与确认密码不一致！");
+      return;
+    }
+
     fetch("/register", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
@@ -144,8 +145,10 @@
             .then(data => {
               if (data.code === 200) {
                 alert("注册成功，请登录！");
-                // 切换回登录页面
-                toggleBtn.click();
+                // 自动切换回登录并填入账号密码
+                document.getElementById("login_email").value = email;
+                document.getElementById("login_password").value = password;
+                switchToLoginForm();
               } else {
                 alert(data.message);
               }
@@ -156,7 +159,7 @@
             });
   });
 
-  // 发送验证码按钮点击事件
+  // 发送验证码
   document.getElementById("sendCodeBtn").addEventListener("click", () => {
     const email = document.getElementById("reg_email").value;
     if (!email) {

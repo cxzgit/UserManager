@@ -11,8 +11,9 @@ import (
 var jwtSecret = []byte("cxzzs")
 
 type Claims struct {
-	UserID int `json:"user_id"`
-	Role   int `json:"role"`
+	UserID    int    `json:"user_id"`
+	Role      int    `json:"role"`
+	AvatarUrl string `json:"avatar_url"`
 	//预定义声明的结构体，里面的字段用于描述Token的基本信息
 	jwt.RegisteredClaims
 }
@@ -20,8 +21,9 @@ type Claims struct {
 // 生成JWT
 func GenerateToken(user *models.User) (string, error) {
 	claims := Claims{
-		UserID: user.ID,
-		Role:   user.Role,
+		UserID:    user.ID,
+		Role:      user.Role,
+		AvatarUrl: user.AvatarUrl,
 		RegisteredClaims: jwt.RegisteredClaims{
 			//过期时间
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),

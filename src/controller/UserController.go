@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type UserController struct {
@@ -354,4 +355,42 @@ func (uc *UserController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 	// 删除成功
 	json.NewEncoder(w).Encode(utils.SuccessResult[any](nil))
+}
+
+// 退出登录
+func (uc *UserController) LogoutHandler(w http.ResponseWriter, r *http.Request) {
+	// 清除 Cookie
+	http.SetCookie(w, &http.Cookie{
+		Name:     "jwt_token",
+		Value:    "",
+		Path:     "/",
+		Expires:  time.Unix(0, 0), // 兼容性处理（设置为过去的时间）
+		HttpOnly: true,
+	})
+	json.NewEncoder(w).Encode(utils.SuccessResult("登出成功"))
+}
+
+// 头像
+func (uc *UserController) ProfileHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("2345678")
+	// 从 Cookie 中获取 token
+	cookie, err := r.Cookie("jwt_token")
+	if err != nil {
+		http.Error(w, "未登录", http.StatusUnauthorized)
+		return
+	}
+	tokenString := cookie.Value
+
+	// 解析 token
+	token, err := utils.ParseToken(tokenString)
+	if err != nil {
+		http.Error(w, "token解析错误", http.StatusUnauthorized)
+	}
+	// 返回用户头像、用户名等数据，这里只返回头像 URL 作为示例
+	resp := map[string]string{
+		"avatar": token.AvatarUrl,
+		// 还可以加入其他信息，例如用户名、角色等
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(utils.SuccessResult(resp))
 }
