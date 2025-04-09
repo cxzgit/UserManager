@@ -5,6 +5,7 @@ import (
 	"UserManager/src/models"
 	"UserManager/src/utils"
 	"fmt"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -58,9 +59,11 @@ func (rs *RegisterService) RegisterUser(email, inputCode, password, passwordConf
 	newUser := &models.User{
 		Email:        email,
 		PasswordHash: string(hashed),
+		Nickname:     "user_" + uuid.New().String()[:8],
 	}
 	if err := rs.Mapper.InsertUser(newUser); err != nil {
 		return fmt.Errorf("用户注册失败：%v", err)
 	}
+
 	return nil
 }

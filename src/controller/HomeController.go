@@ -4,7 +4,6 @@ import (
 	"UserManager/src/service"
 	"UserManager/src/utils"
 	"encoding/json"
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -48,7 +47,6 @@ func (hc *HomeController) DashboardStats(w http.ResponseWriter, r *http.Request)
 		http.Error(w, "获取数据失败", http.StatusInternalServerError)
 		return
 	}
-	fmt.Println("数据", stats)
 
 	json.NewEncoder(w).Encode(utils.SuccessResult(stats))
 }

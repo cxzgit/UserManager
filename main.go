@@ -43,6 +43,11 @@ func main() {
 	homeService := service.NewHomeService(homeMapper)
 	homeController := controller.NewHomeController(homeService)
 
+	//用户
+	userMapper := mapper.NewUserMapper(db.DB)
+	userService := service.NewUserService(userMapper)
+	userController := controller.NewUserController(userService)
+
 	// 使用 Gorilla mux 路由
 	router := mux.NewRouter()
 	//注册时发送邮箱验证码
@@ -82,6 +87,21 @@ func main() {
 	protected.HandleFunc("/accessTrend", homeController.GetAccessTrend).Methods(http.MethodGet)
 	//登出
 	protected.HandleFunc("/logout", homeController.LogoutHandler).Methods(http.MethodGet)
+
+	//进入用户管理页面
+	protected.HandleFunc("/user", userController.UserPage).Methods(http.MethodGet)
+
+	//分页查询
+	protected.HandleFunc("/queryUser", userController.GetUsers).Methods(http.MethodGet)
+
+	//新增用户
+	protected.HandleFunc("/createUser", userController.CreateUser).Methods(http.MethodPost)
+	//修改用户
+	protected.HandleFunc("/updateUser", userController.UpdateUser).Methods(http.MethodPut)
+	//根据id获取用户
+	protected.HandleFunc("/getUser", userController.GetUserByID).Methods(http.MethodGet)
+	//根据id删除用户
+	protected.HandleFunc("/deleteUser", userController.DeleteUser).Methods(http.MethodDelete)
 	fmt.Println("服务器启动，监听端口 :8080")
 	log.Fatal(http.ListenAndServe("localhost:8080", router))
 }

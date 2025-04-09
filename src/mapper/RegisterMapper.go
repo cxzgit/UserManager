@@ -34,7 +34,7 @@ func (rm *RegisterMapper) GetUserByEmail(email string) (*models.User, error) {
 
 // InsertUser 插入新用户数据
 func (rm *RegisterMapper) InsertUser(user *models.User) error {
-	result, err := rm.DB.Exec("INSERT INTO users (email, password_hash) VALUES (?, ?)", user.Email, user.PasswordHash)
+	result, err := rm.DB.Exec("INSERT INTO users (email, password_hash,nickname) VALUES (?, ?,?)", user.Email, user.PasswordHash, user.Nickname)
 	if err != nil {
 		return err
 	}

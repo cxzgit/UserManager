@@ -2,7 +2,6 @@ package service
 
 import (
 	"UserManager/src/mapper"
-	"fmt"
 	"time"
 )
 
@@ -37,18 +36,17 @@ func (hs *HomeService) GetDashboardStats() (DashboardData, error) {
 	// 获取当前时间
 	now := time.Now()
 	currentUsers, err := hs.Mapper.CountRegisteredUsers(now)
-	fmt.Println("currentUsers: ", currentUsers)
+
 	if err != nil {
 		return DashboardData{}, err
 	}
 	currentVisits, err := hs.Mapper.CountVisits(time.Now())
 
-	fmt.Println("currentVisits: ", currentVisits)
 	if err != nil {
 		return DashboardData{}, err
 	}
 	currentDeactivated, err := hs.Mapper.CountDeactivatedUsers(time.Now())
-	fmt.Println("currentDeactivated: ", currentDeactivated)
+
 	if err != nil {
 		return DashboardData{}, err
 	}
