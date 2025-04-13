@@ -5,6 +5,7 @@ import (
 	"UserManager/src/models"
 	"UserManager/src/utils"
 	"errors"
+	"fmt"
 	"golang.org/x/crypto/bcrypt"
 	"io"
 )
@@ -79,6 +80,9 @@ func (us *UserService) UpdateUser(id int, email, passwordHash, nickname string, 
 
 	// 4. 如果前端传了非空密码，才加密并更新
 	if passwordHash != "" {
+		if !isValidPassword(passwordHash) {
+			return nil, fmt.Errorf("密码必须是8-12位字母和数字组合")
+		}
 		hashed, err := bcrypt.GenerateFromPassword([]byte(passwordHash), bcrypt.DefaultCost)
 		if err != nil {
 			return nil, errors.New("密码加密失败")

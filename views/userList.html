@@ -382,13 +382,48 @@
   next.onclick = () => loadUsers(page + 1);
   [prev, cur, next].forEach(b => container.appendChild(b));
  }
-
  function deleteUser(id) {
   if (!confirm('确定删除?')) return;
-  fetch(`/deleteUser?id=${id}`, { method: 'DELETE' })
-          .then(res => res.json())
-          .then(r => { if (r.code === 200) loadUsers(currentPage); });
+
+  fetch(`/deleteUser?id=${id}`, {
+   method: 'DELETE',
+   headers: {
+    'Accept': 'application/json'
+   }
+  })
+          .then(res => {
+           // HTTP 层面的错误（比如 405、500）
+           if (!res.ok) {
+            return res.json()
+                    .then(errBody => {
+                     // 把后端返回的错误信息抛出到 catch
+                     const msg = errBody?.message || res.statusText;
+                     return Promise.reject(new Error(msg));
+                    })
+                    .catch(() => {
+                     // 如果解析 JSON 失败，就用 statusText
+                     return Promise.reject(new Error(res.statusText));
+                    });
+           }
+           // HTTP OK，继续解析业务层面的 JSON
+           return res.json();
+          })
+          .then(body => {
+           // 业务层面的返回码判断
+           if (body.code === 200) {
+            loadUsers(currentPage);
+           } else {
+            // 后端返回了错误码，弹出 message
+            alert(`删除失败：${body.message || '未知错误'}`);
+           }
+          })
+          .catch(err => {
+           // 捕获上面抛出的任何 Error，以及网络错误
+           console.error('删除用户出错:', err);
+           alert(`删除用户出错：${err.message}`);
+          });
  }
+
 
  async function logout() {
   if (confirm('确定要退出系统吗？')) {

@@ -19,8 +19,8 @@ func NewLoginMapper(db *sql.DB) *LoginMapper {
 func (lm *LoginMapper) GetUserByEmail(email string) (*models.User, error) {
 	user := &models.User{}
 	var createdAt string
-	err := lm.DB.QueryRow("SELECT id, email, password_hash,role,nickname,avatar_url, created_at FROM users WHERE email = ?", email).
-		Scan(&user.ID, &user.Email, &user.PasswordHash, &user.Role, &user.Nickname, &user.AvatarUrl, &createdAt)
+	err := lm.DB.QueryRow("SELECT id, email, password_hash,role,nickname,avatar_url, created_at ,status FROM users WHERE email = ?", email).
+		Scan(&user.ID, &user.Email, &user.PasswordHash, &user.Role, &user.Nickname, &user.AvatarUrl, &createdAt, &user.Status)
 	if err != nil {
 		return nil, err
 	}

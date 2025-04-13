@@ -28,6 +28,10 @@ func (ls *LoginService) LoginUser(email string, password string) (string, error)
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
 		return "", fmt.Errorf("密码错误")
 	}
+	fmt.Println("hhh", user)
+	if user.Status == 0 {
+		return "", fmt.Errorf("用户已被禁用")
+	}
 	//生成JWT
 	token, err := utils.GenerateToken(user)
 

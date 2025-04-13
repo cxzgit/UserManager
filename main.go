@@ -7,7 +7,6 @@ import (
 	"UserManager/src/middleware"
 	"UserManager/src/service"
 	"UserManager/src/utils"
-	"fmt"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
@@ -110,6 +109,15 @@ func main() {
 	//用户页面头像
 	protected.HandleFunc("/user/profile", userController.ProfileHandler).Methods(http.MethodGet)
 
-	fmt.Println("服务器启动，监听端口 :8080")
-	log.Fatal(http.ListenAndServe("localhost:8080", router))
+	// 4. 全局中间件：Recover → Logger → CORS
+	handler := middleware.Chain(
+		router,
+		middleware.RecoverMiddleware,
+		middleware.LoggerMiddleware,
+		middleware.CORS,
+	)
+	log.Println("服务器启动，监听端口 :8080")
+	if err := http.ListenAndServe(":8080", handler); err != nil {
+		log.Fatalf("启动失败: %v", err)
+	}
 }

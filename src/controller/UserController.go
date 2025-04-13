@@ -10,6 +10,7 @@ import (
 	"html/template"
 	"io"
 	"net/http"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -135,6 +136,12 @@ func (uc *UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(utils.ErrorResult[any](http.StatusBadRequest, "请完整填写所有必填项"))
+		return
+	}
+	if !isValidPassword(password) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(utils.ErrorResult[any](http.StatusBadRequest, "密码必须是8-12位字母和数字组合"))
 		return
 	}
 
@@ -325,6 +332,24 @@ func (uc *UserController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	// 从 query 里获取 userId
 	idStr := r.URL.Query().Get("id")
+
+	// 获取 JWT token
+	cookie, err := r.Cookie("jwt_token")
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(utils.ErrorResult[any](http.StatusUnauthorized, fmt.Sprintf("获取 JWT 失败：%v", err)))
+		return
+	}
+
+	token, err := utils.ParseToken(cookie.Value)
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(utils.ErrorResult[any](http.StatusUnauthorized, fmt.Sprintf("解析 Token 失败：%v", err)))
+		return
+	}
+
 	if idStr == "" {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
@@ -332,6 +357,14 @@ func (uc *UserController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	id, err := strconv.Atoi(idStr)
+
+	if id == token.UserID {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(utils.ErrorResult[any](http.StatusBadRequest, "不能删除当前用户"))
+		return
+	}
+
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
@@ -393,4 +426,29 @@ func (uc *UserController) ProfileHandler(w http.ResponseWriter, r *http.Request)
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(utils.SuccessResult(resp))
+}
+
+// isValidPassword 校验密码是否满足8-12位字母和数字组合
+func isValidPassword(password string) bool {
+	// 1. 检查长度是否为8-12位
+	if len(password) < 8 || len(password) > 12 {
+		return false
+	}
+	// 2. 检查是否只包含字母和数字
+	validChars, err := regexp.MatchString(`^[0-9A-Za-z]+$`, password)
+	if err != nil || !validChars {
+		return false
+	}
+	// 3. 检查是否至少包含一个字母
+	hasLetter, err := regexp.MatchString(`[A-Za-z]`, password)
+	if err != nil || !hasLetter {
+		return false
+	}
+	// 4. 检查是否至少包含一个数字
+	hasDigit, err := regexp.MatchString(`\d`, password)
+	if err != nil || !hasDigit {
+		return false
+	}
+
+	return true
 }
